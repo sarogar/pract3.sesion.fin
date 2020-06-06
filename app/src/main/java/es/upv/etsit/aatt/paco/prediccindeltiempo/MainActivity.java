@@ -18,6 +18,8 @@ import javax.net.ssl.HttpsURLConnection;
 public class MainActivity extends AppCompatActivity {
 
     boolean primera_vez = true;
+    String TAG = "." ;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,12 +28,19 @@ public class MainActivity extends AppCompatActivity {
 
         /****/
         // Creación de tarea asíncrona
+
+        TareaAsincrona tarea1 = new TareaAsincrona();
+
         // Ejecución de hilo de tarea asíncrona
+
+        tarea1.execute("https://opendata.aemet.es/opendata/api/prediccion/especifica/municipio/diaria/23039?api_key=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzYXJhcm9tZ2FyY0Bob3RtYWlsLmNvbSIsImp0aSI6ImUyYjc2M2Y3LTI1MDYtNDA0Mi1hMjY0LTNiYjhmY2E4ZWMyZCIsImlzcyI6IkFFTUVUIiwiaWF0IjoxNTg3NTUyNTMzLCJ1c2VySWQiOiJlMmI3NjNmNy0yNTA2LTQwNDItYTI2NC0zYmI4ZmNhOGVjMmQiLCJyb2xlIjoiIn0.bGERMGyBiVBqo5cin403IO5j8KP0F2EeBXOGHfmx7L4");
+
     }
 
 
 
-    class TareaAsincrona extends AsyncTask<***,***,***> {
+    class TareaAsincrona extends AsyncTask<String,String,String> {
+
 
 
         @Override
@@ -39,8 +48,10 @@ public class MainActivity extends AppCompatActivity {
             // Llamada a petición API-REST con la URI o URL indicada en el método
             // .execute. Por último, retorno del string entregado por la llamada
             // a la API-REST
-            /****/
-            return *****;
+            String respuesta = API_REST(uri[0]);
+            Log.d(TAG, "respuesta: " +respuesta);
+
+            return respuesta;
         }
 
         @Override
@@ -53,11 +64,19 @@ public class MainActivity extends AppCompatActivity {
                         primera_vez = false;
 
                         // Obtención de la propiedad "datos" del JSON
-                        /****/
-
                         // Creación de una nuevo objeto de TareaAsincrona
                         // Ejecución del hilo correspondiente
-                        /****/
+                        Log.d(TAG, " OnPostExecute respuestata : " + respuesta);
+
+                        JSONObject jsonobjeto = new JSONObject(respuesta);
+
+                        String url2 = jsonobjeto.getString("datos");
+
+                        Log.d(TAG,"Url2:" + url2);
+
+                        TareaAsincrona tarea2 = new TareaAsincrona();
+
+                        tarea2.execute(url2);
 
                     } else { // segunda vez: recogida de respuesta de la segunda llamada
 
@@ -66,8 +85,24 @@ public class MainActivity extends AppCompatActivity {
                         // convencional de ejecución, y por tanto ya se puede modificar
                         // el contenido de los TextView que contienen los valores de los datos.
 
-                        /****/
+                        Log.d(TAG, " OnPostExecute, url2 es : " + respuesta );
 
+                        JSONArray jsonobject2 = new JSONArray(respuesta);
+
+                        String localidad = jsonobject2.getJSONObject( 0).getString("nombre");
+                        String temp = jsonobject2.getJSONObject( 0).getJSONObject("prediccion").getJSONArray( "dia").getJSONObject(1).getJSONArray( "temperatura").getJSONObject( 12).getString( "value");
+                        String lluvia= jsonobject2.getJSONObject(0).getJSONObject("prediccion").getJSONArray("dia").getJSONObject(1).getJSONArray("probPrecipitacion").getJSONObject(3).getString("value");
+                        String vientodirec= jsonobject2.getJSONObject(0).getJSONObject("prediccion").getJSONArray("dia").getJSONObject(1).getJSONArray("vientoAndRachaMax").getJSONObject(12).getJSONArray("direccion").getString(0);
+                        String vientovelmax= jsonobject2.getJSONObject(0).getJSONObject("prediccion").getJSONArray("dia").getJSONObject(1).getJSONArray("vientoAndRachaMax").getJSONObject(12).getJSONArray("velocidad").getString(0);
+                        String estcielo=jsonobject2.getJSONObject(0).getJSONObject("prediccion").getJSONArray("dia").getJSONObject(1).getJSONArray("estadoCielo").getJSONObject(12).getString("descripcion");
+
+
+                        temp1.setText(temp);
+                        prepci.setText(lluvia);
+                        localidad1.setText(localidad);
+                        viento.setText(vientodirec);
+                        viento2.setText(vientovelmax);
+                        cielo1.setText(estcielo);
 
                     }
 
